@@ -8,7 +8,7 @@ def libraryName = project.name
 def testProgramName = libraryName + "-test"
 
 konanArtifacts {
-    library(libraryName, targets: ["macos_x64"]) {
+    library(libraryName, targets: ["macos_x64", "linux_x64"]) {
         artifactName libraryName.replace('-', '_')
         enableMultiplatform true
     }
