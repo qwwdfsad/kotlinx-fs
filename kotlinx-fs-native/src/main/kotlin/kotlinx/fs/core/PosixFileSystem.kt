@@ -177,28 +177,32 @@ object PosixFileSystem : FileSystem() {
 
     // TODO say how unsafe it is without openat
     override fun list(path: Path): List<Path> {
+        val result = mutableListOf<Path>()
+        walkDirectory(path) { result.add(it) }
+        return result
+    }
+
+    override fun walkDirectory(path: Path, consumer: (Path) -> Unit) {
         val dirPtr = opendir(path.str())
                 ?: throw IOException("Failed to open directory $path with error code ${errno()}")
 
         try {
-            val result = mutableListOf<Path>()
             var dirStruct = readdir(dirPtr)
             while (dirStruct != null) {
                 val name = dirStruct.pointed.d_name.toKString()
                 if (name != "." && name != "..") {
-                    result.add(UnixPath("$path/$name"))
+                    consumer(UnixPath("$path/$name"))
                 }
 
                 dirStruct = readdir(dirPtr)
             }
+
             // TODO Can't check for errors here because there is no way to reset errno
-            // TODO or rewrite it using readdir_r
 //            if (errno() != 0) {
 //                throw IOException("Failed to read from dir $path with error code ${errno()}")
 //            }
-
-            return result
         } finally {
+            // TODO we need some supression/cause mechanism here
             if (closedir(dirPtr) == -1) {
                 throw IOException("Failed to close directory $path with error code ${errno()}")
             }

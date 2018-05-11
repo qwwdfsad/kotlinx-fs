@@ -139,12 +139,10 @@ abstract class FileSystem {
      * Iterates over entries in given directory in a lazy manner.
      * Race-safety of this call is implementation-specific (TODO implement dirat in native and inspect node.js implementation)
      * in terms of concurrent modification of target directory
-     * TODO this API should be more granular.
-     * E.g. way to stop iteration should be introduced
+     * TODO this API should be more granular. E.g. way to stop iteration should be introduced
      * @throws IOException if I/O error occurred during iteration over directory
      */
     open fun walkDirectory(path: Path, consumer: (Path) -> Unit): Unit = list(path).forEach(consumer)
-
 
     /**
      * Reads all file content into single byte array

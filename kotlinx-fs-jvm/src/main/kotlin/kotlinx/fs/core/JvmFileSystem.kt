@@ -53,6 +53,8 @@ object JvmFileSystem : FileSystem() {
 
     override fun list(path: Path): List<Path> = Files.list(path).collect(Collectors.toList())
 
+    override fun walkDirectory(path: Path, consumer: (Path) -> Unit) = Files.list(path).forEach(consumer)
+
     override fun createFile(path: Path): Path = Files.createFile(path)
 
     override fun createDirectory(path: Path): Path = Files.createDirectory(path)
