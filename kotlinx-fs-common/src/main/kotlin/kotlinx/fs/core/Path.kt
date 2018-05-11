@@ -6,4 +6,5 @@ expect interface Path {
     fun isAbsolute(): Boolean
     fun getNameCount(): Int
     fun getName(index: Int): Path
+    fun resolve(other: Path): Path
 }

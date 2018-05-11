@@ -39,6 +39,28 @@ class PathTest {
         checkSingleFileName(path, "42.txt")
     }
 
+    @Test
+    fun testPathConcatenation() {
+        // Where is my parametrized :(
+
+        checkConcatenation(Path("a"), "b", "a/b")
+        checkConcatenation(Path("a"), "/b/", "a/b")
+        checkConcatenation(Path("foo/../.."), "../../", "foo/../../../..")
+        checkConcatenation(Path(""), "/", "/")
+        checkConcatenation(Path("/"), "", "/")
+        checkConcatenation(Path("."), "bar", "./bar")
+        checkConcatenation(Path("bar"), ".", "bar/.")
+        checkConcatenation(Path("foo.txt"), "foo.txt", "foo.txt/foo.txt")
+    }
+
+    private fun checkConcatenation(base: Path, other: String, expected: String) {
+        val result1 = base + other
+        val result2 = base + Path(other)
+
+        assertEquals(expected, result1.toString())
+        assertEquals(expected, result2.toString())
+    }
+
     private fun checkSingleFileName(path: Path, expectedName: String) {
         assertFalse(path.isAbsolute())
         assertEquals(expectedName, path.getFileName().toString())

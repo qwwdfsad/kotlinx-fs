@@ -11,7 +11,7 @@ class ReadWriteOperationsTest : TestBase() {
         path.writeBytes(content)
 
         val expected = content.copyOf()
-        val actual = path.readBytes()
+        val actual = path.readAllBytes()
 
         assertTrue(
             actual.contentEquals(expected),
@@ -25,7 +25,7 @@ class ReadWriteOperationsTest : TestBase() {
         val content = ByteArray(255) { it.toByte() }
         path.writeBytes(content)
 
-        val actual = path.readBytes()
+        val actual = path.readAllBytes()
         assertTrue(
             actual.contentEquals(content),
             "Expected ${content.contentToString()}, but has ${actual.contentToString()}"
@@ -41,7 +41,7 @@ class ReadWriteOperationsTest : TestBase() {
         val path = testFile("write-empty").createFile()
         path.writeBytes(byteArrayOf())
 
-        val actual = path.readBytes()
+        val actual = path.readAllBytes()
         assertTrue(actual.isEmpty())
     }
 
@@ -49,7 +49,7 @@ class ReadWriteOperationsTest : TestBase() {
     fun testReadNonExistent() {
         assertFailsWith<IOException> {
             val path = testFile("read-non-existent")
-            val actual = path.readBytes()
+            val actual = path.readAllBytes()
             assertTrue(actual.isEmpty())
         }
     }
@@ -57,7 +57,7 @@ class ReadWriteOperationsTest : TestBase() {
     @Test
     fun testReadEmpty() {
         val path = testFile("read-empty").createFile()
-        val actual = path.readBytes()
+        val actual = path.readAllBytes()
         assertTrue(actual.isEmpty())
     }
 
@@ -66,7 +66,7 @@ class ReadWriteOperationsTest : TestBase() {
         val path = testDirectory("read-from-directory").createDirectory()
         assertTrue(path.isDirectory())
 
-        assertFailsWith<IOException> { path.readBytes() }
+        assertFailsWith<IOException> { path.readAllBytes() }
         assertTrue(path.isDirectory())
     }
 

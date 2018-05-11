@@ -15,7 +15,7 @@ class MoveTest : TestBase() {
         file.moveTo(target)
 
         assertTrue(target.exists())
-        assertTrue(expectedContent.contentEquals(target.readBytes()))
+        assertTrue(expectedContent.contentEquals(target.readAllBytes()))
         assertFalse(file.exists())
     }
 
@@ -38,7 +38,7 @@ class MoveTest : TestBase() {
         file.writeBytes(expectedContent)
 
         val target = testDirectory("target-directory")
-        val targetFile =  Paths.getPath(target, "content.txt")
+        val targetFile = target + "content.txt"
         assertFalse(target.exists())
         assertFalse(targetFile.exists())
 
@@ -48,7 +48,7 @@ class MoveTest : TestBase() {
         // Content is not copied, but directory is
         assertTrue(target.exists())
         assertTrue(targetFile.exists())
-        assertTrue(expectedContent.contentEquals(targetFile.readBytes()))
+        assertTrue(expectedContent.contentEquals(targetFile.readAllBytes()))
         assertFalse(directory.exists())
     }
 

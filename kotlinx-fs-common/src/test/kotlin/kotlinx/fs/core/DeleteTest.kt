@@ -16,7 +16,7 @@ class DeleteTest : TestBase() {
     @Test
     fun deleteNonEmptyDirectory() {
         val directory = testFile("delete-directory").createDirectory()
-        val file = Paths.getPath(directory, "nested-file.txt").createFile()
+        val file = (directory + "nested-file.txt").createFile()
 
         assertTrue(directory.exists())
         assertTrue(file.exists())

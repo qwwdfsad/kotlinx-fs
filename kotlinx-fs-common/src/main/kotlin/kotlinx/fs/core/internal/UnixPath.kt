@@ -1,11 +1,13 @@
 package kotlinx.fs.core.internal
 
+// Hack to have common implementation
 interface PathCommon {
     fun getParent(): PathCommon?
     fun getFileName(): PathCommon?
     fun isAbsolute(): Boolean
     fun getNameCount(): Int
     fun getName(index: Int): PathCommon
+    fun resolve(other: PathCommon): PathCommon
 }
 
 class UnixPath private constructor(path: String, normalizePath: Boolean) : PathCommon {
@@ -104,6 +106,28 @@ class UnixPath private constructor(path: String, normalizePath: Boolean) : PathC
         // construct result
 
         return UnixPath(normalizedPath.substring(begin, begin + len), false)
+    }
+
+    override fun resolve(other: PathCommon): UnixPath {
+        if (other !is UnixPath) {
+            throw IllegalArgumentException("Mixing paths of different classes are forbidden," +
+                    " target class: ${UnixPath::class}, received class: ${other::class}")
+        }
+
+        if (other.isAbsolute()) {
+           return other
+        }
+
+        if (normalizedPath.isEmpty()) {
+            return other
+        }
+
+        if (other.normalizedPath.isEmpty()) {
+            return this
+        }
+
+        // TODO not the most optimal solution
+        return UnixPath(normalizedPath + "/" + other.normalizedPath, true)
     }
 
     override fun toString(): String = normalizedPath

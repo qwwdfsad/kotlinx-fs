@@ -17,7 +17,7 @@ import kotlin.reflect.*
  * val path = Files.getPath("file.txt") // <- relative path for working directory
  * path.create()
  * path.writeBytes(ByteArray(239) { it })
- * val bytes = path.readBytes() // <- reads all bytes
+ * val bytes = path.readAllBytes() // <- reads all bytes
  * ```
  */
 abstract class FileSystem {

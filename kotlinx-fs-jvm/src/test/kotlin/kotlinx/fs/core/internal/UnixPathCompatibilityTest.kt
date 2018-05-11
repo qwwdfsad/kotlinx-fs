@@ -10,20 +10,22 @@ import kotlin.test.*
 class UnixPathCompatibilityTest(val path: String) {
 
     companion object {
+        private val paths = listOf(
+            "file.txt",
+            "folder/file.txt",
+            "1/2/3/file",
+            "1//2///3/////4",
+            "1/2/../2/",
+            "",
+            "/",
+            "..",
+            "."
+        )
+
         @Parameterized.Parameters(name = "{0}")
         @JvmStatic
         fun params(): Collection<Array<Any>> =
-            listOf(
-                "file.txt",
-                "folder/file.txt",
-                "1/2/3/file",
-                "1//2///3/////4",
-                "1/2/../2/",
-                "",
-                "/",
-                "..",
-                "."
-            ).flatMap { listOf(it, "/$it", "$it/", "/$it/", "///$it//") }.toSet().map { arrayOf<Any>(it) }
+            paths.flatMap { listOf(it, "/$it", "$it/", "/$it/", "///$it//") }.toSet().map { arrayOf<Any>(it) }
     }
 
     @Test
@@ -31,11 +33,22 @@ class UnixPathCompatibilityTest(val path: String) {
         checkCompatibility(path)
     }
 
-
     private fun checkCompatibility(path: String) {
         val unixPath = UnixPath(path)
         val javaPath = Paths.getPath(path)
 
+        checkCompatibility(javaPath, unixPath)
+
+        paths.forEach {
+            val target = UnixPath(it)
+            val javaTarget = Paths.getPath(it)
+            val resolvedUnix = unixPath.resolve(target)
+            val resolvedJava = javaPath.resolve(javaTarget)
+            checkCompatibility(resolvedJava, resolvedUnix)
+        }
+    }
+
+    private fun checkCompatibility(javaPath: Path, unixPath: UnixPath) {
         assertEquals(javaPath.toString(), unixPath.toString())
         assertEquals(javaPath.fileName?.toString(), unixPath.getFileName()?.toString())
         assertEquals(javaPath.parent?.toString(), unixPath.getParent()?.toString())

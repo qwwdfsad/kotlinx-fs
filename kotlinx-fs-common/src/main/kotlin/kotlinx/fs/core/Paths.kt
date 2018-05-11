@@ -1,6 +1,7 @@
 package kotlinx.fs.core
 
 import kotlinx.fs.core.Paths.fs
+import kotlinx.fs.core.Paths.getPath
 import kotlinx.fs.core.attributes.*
 
 object Paths {
@@ -15,6 +16,10 @@ object Paths {
     fun fs(): FileSystem = getDefaultFileSystem()
 }
 
+fun Path(first: String, vararg more: String): Path = getPath(first, *more)
+fun Path(first: Path, vararg more: String): Path = getPath(first, *more)
+fun Path(first: Path, vararg more: Path): Path = getPath(first, *more)
+
 /*
  * Integration point with external filesystems here:
  * Add FsAwarePath interface, add check to fs() and return path's fs if it's present and make
@@ -23,10 +28,35 @@ object Paths {
  * E.g.
  * val path = zipFs.getPath("archive.zip")
  * val files = path.list() // <- list is called on zip fs
- * val content = path.readBytes() <- decompressed content
+ * val content = path.readAllBytes() <- decompressed content
  *
  * Impl note: don't forget to add defensive type checks with human-readable errors in default FS implementations
  */
+
+/**
+ * Concatenates current path with given string ignoring its trailing and leading path separators.
+ *
+ * ```
+ * val base = Path("/base")
+ * (base + "foo.txt").toString() == (base + "///foo.txt///") // true
+ * ```
+ */
+operator fun Path.plus(other: String): Path = getPath(this, other)
+
+/**
+ * Concatenates current path with given path ignoring its trailing and leading path separators.
+ * This **does not** resolves [other] against current and ignores whether [other] is relative or absolute.
+ * This operator also ignores type of [other] and returns [Path] bound to the same file system as [this] // TODO this is debatable
+ *
+ * ```
+ * val base = Path("/base")
+ * val relative = Path("foo")
+ * val absolute = Path("/foo")
+ *
+ * (base + relative).toString() == (base + absolute) // true
+ * ```
+ */
+operator fun Path.plus(other: Path): Path = getPath(this, other)
 
 // TODO document it even though it's all delegates to FS
 fun Path.createFile(): Path = fs().createFile(this)
@@ -103,7 +133,6 @@ fun Path.copyTo(target: Path): Path = fs().copy(this, target)
 
 fun Path.moveTo(target: Path): Path = fs().move(this, target)
 
-
 fun Path.deleteIfExists(): Boolean = fs().delete(this)
 
 fun Path.delete() {
@@ -128,7 +157,7 @@ fun Path.deleteDirectory() {
 
 fun Path.newInputStream(): InputStream = fs().newInputStream(this)
 
-fun Path.readBytes(): ByteArray = fs().readBytes(this)
+fun Path.readAllBytes(): ByteArray = fs().readBytes(this)
 
 fun Path.newOutputStream(): OutputStream = fs().newOutputStream(this)
 

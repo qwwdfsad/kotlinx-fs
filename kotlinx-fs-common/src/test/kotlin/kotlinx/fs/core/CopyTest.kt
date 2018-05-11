@@ -13,8 +13,8 @@ class CopyTest : TestBase() {
         val target = testFile("target-file")
         file.copyTo(target)
 
-        assertTrue(expectedContent.contentEquals(target.readBytes()))
-        assertTrue(expectedContent.contentEquals(file.readBytes()))
+        assertTrue(expectedContent.contentEquals(target.readAllBytes()))
+        assertTrue(expectedContent.contentEquals(file.readAllBytes()))
         assertTrue(file.exists())
     }
 
@@ -33,7 +33,7 @@ class CopyTest : TestBase() {
     fun testCopyDirectoryWithContent() {
         val expectedContent = ByteArray(42) { it.toByte() }
         val directory = testDirectory("copy-directory-with-content").createDirectory()
-        val file = Paths.getPath(directory, "content.txt").createFile()
+        val file = Path(directory, "content.txt").createFile()
         file.writeBytes(expectedContent)
 
         val target = testDirectory("target-directory")
