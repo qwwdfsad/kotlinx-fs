@@ -1,3 +1,3 @@
 rootProject.name = 'kotlinx-fs'
 
-include 'kotlinx-fs-common', 'kotlinx-fs-jvm', 'kotlinx-fs-js', 'kotlinx-fs-native'//, 'examples-native'
+include 'kotlinx-fs-common', 'kotlinx-fs-jvm', 'kotlinx-fs-js', 'kotlinx-fs-native', 'examples-native'

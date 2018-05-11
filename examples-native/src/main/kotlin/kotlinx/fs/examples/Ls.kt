@@ -1,5 +1,10 @@
 package kotlinx.fs.examples
 
+import kotlinx.fs.core.*
+import kotlinx.fs.core.attributes.*
+import kotlin.math.*
+
+
 object Ls : FsOperation {
 
     override fun execute(path: String, args: Map<String, String>) {
@@ -11,7 +16,7 @@ object Ls : FsOperation {
         if (path.isDirectory()) {
             path.walkDirectory { println(describe(it)) }
         } else {
-            describe(path)
+            println(describe(path))
         }
 
     }
@@ -20,7 +25,7 @@ object Ls : FsOperation {
         val attributes = path.attributesOfType<PosixFileAttributes>()
         // We could use String.format here
         return attributes.permissions.toHumanReadableString() + "\t" + path.totalSize().prettify() +
-                "\t" + attributes.lastAccessTimeUs + "\t" + path.fileName
+                "\t" + attributes.lastAccessTimeUs + "\t" + path.getFileName()
     }
 
     private fun Long.prettify(): String {

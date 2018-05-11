@@ -49,5 +49,5 @@ static def platformOf(project) {
     return "jvm"
 }
 
-//ext.fs_common = project('kotlinx-fs-common')
-//ext.fs_native = project('kotlinx-fs-native')
+ext.fs_common = project('kotlinx-fs-common')
+ext.fs_native = project('kotlinx-fs-native')
