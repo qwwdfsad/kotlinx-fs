@@ -8,8 +8,17 @@ node {
     nodeModulesDir = file(buildDir)
 }
 
-// Configures testing for JS modules
+// Workaround the problem with Node downloading:
+// Konan plugin uses Gradle-metadata feature which is not compatible with node plugin download implementation
+repositories.whenObjectAdded {
+    if (it instanceof IvyArtifactRepository) {
+        metadataSources {
+            artifact()
+        }
+    }
+}
 
+// Configures testing for JS modules
 task prepareNodePackage(type: Copy) {
     from("npm") {
         include 'package.json'
