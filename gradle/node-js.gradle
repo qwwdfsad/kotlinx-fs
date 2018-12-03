@@ -8,7 +8,7 @@ node {
 }
 
 // Workaround the problem with Node downloading:
-// Konan plugin uses Gradle-metadata feature which is not compatible with node plugin download implementation
+// Kotlin plugin uses Gradle-metadata feature which is not compatible with node plugin download implementation
 repositories.whenObjectAdded {
     if (it instanceof IvyArtifactRepository) {
         metadataSources {
@@ -31,7 +31,10 @@ task prepareNodePackage(type: Copy) {
 
 npmInstall.dependsOn prepareNodePackage
 
-task populateNodeModules(type: Sync, dependsOn: [compileKotlinJs]) {
+// Combine all required compilation results in the node_modules folder
+// - main compilation result (compileKotlinJs)
+// - all runtime dependencies of test sourceset
+task jsTestDependencies(type: Sync, group: 'build' , dependsOn: [compileKotlinJs]) {
     from compileKotlinJs.destinationDir
     into "$node.nodeModulesDir/node_modules"
 
@@ -47,4 +50,4 @@ task populateNodeModules(type: Sync, dependsOn: [compileKotlinJs]) {
     }.builtBy(configurations.jsTestRuntimeClasspath))
 }
 
-npmInstall.dependsOn populateNodeModules
+npmInstall.dependsOn jsTestDependencies
