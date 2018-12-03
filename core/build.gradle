@@ -2,12 +2,12 @@ apply plugin: 'kotlin-multiplatform'
 
 kotlin {
     targets {
-        fromPreset(presets.macosX64, 'macos64')
-        fromPreset(presets.linuxX64, 'linux64')
-
         if (System.getProperty('idea.active') == 'true') {
             //fromPreset(presets.linuxX64, 'native')
             fromPreset(presets.macosX64, 'native')
+        } else {
+            fromPreset(presets.macosX64, 'macos64')
+            fromPreset(presets.linuxX64, 'linux64')
         }
 
         fromPreset(presets.jvm, "jvm") {
@@ -61,16 +61,18 @@ kotlin {
             }
         }
 
-        nativeMain { dependsOn commonMain }
+        if (System.getProperty('idea.active') != 'true') {
+            nativeMain {}
 
-        nativeTest { dependsOn nativeMain }
+            nativeTest {}
 
-        configure([linux64Main, macos64Main]) {
-            dependsOn nativeMain
-        }
+            configure([linux64Main, macos64Main]) {
+                dependsOn nativeMain
+            }
 
-        configure([linux64Test, macos64Test]) {
-            dependsOn nativeTest
+            configure([linux64Test, macos64Test]) {
+                dependsOn nativeTest
+            }
         }
     }
 }
