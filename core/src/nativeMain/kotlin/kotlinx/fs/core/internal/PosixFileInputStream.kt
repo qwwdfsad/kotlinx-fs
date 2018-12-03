@@ -41,7 +41,7 @@ class PosixFileInputStream(private val fd: Int) : InputStream() {
 
         return b.usePinned<ByteArray, Int> {
             while (true) {
-                val read = platform.posix.read(fd, it.addressOf(0), buffer.size.toLong()).toInt()
+                val read = platform.posix.read(fd, it.addressOf(0), buffer.size.toULong()).toInt()
                 if (read == 0) {
                     return -1 // Be compliant with API standard
                 }

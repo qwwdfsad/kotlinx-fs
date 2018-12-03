@@ -1,0 +1,60 @@
+apply plugin: 'kotlin-multiplatform'
+
+kotlin {
+    targets {
+        fromPreset(presets.macosX64, "native")
+        fromPreset(presets.jvm, "jvm") {
+            configure([compilations.main, compilations.test]) {
+                tasks.getByName(compileKotlinTaskName).kotlinOptions {
+                    jvmTarget = '1.8'
+                }
+            }
+        }
+        fromPreset(presets.js, "js") {
+            configure([compilations.main, compilations.test]) {
+                tasks.getByName(compileKotlinTaskName).kotlinOptions {
+                    sourceMap = true
+                    moduleKind = "umd"
+                    metaInfo = true
+                }
+            }
+        }
+    }
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-stdlib'
+            }
+        }
+        commonTest {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-test-common'
+                api 'org.jetbrains.kotlin:kotlin-test-annotations-common'
+            }
+        }
+        jvmMain {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+            }
+        }
+        jvmTest {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-test-junit'
+            }
+        }
+        jsMain {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-stdlib-js'
+            }
+        }
+        jsTest {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-test-js'
+            }
+        }
+    }
+}
+
+apply from: rootProject.file('gradle/node-js.gradle')
+apply from: rootProject.file('gradle/test-mocha-js.gradle')

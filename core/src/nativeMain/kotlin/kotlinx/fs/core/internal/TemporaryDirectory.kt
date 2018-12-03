@@ -7,7 +7,7 @@ object TemporaryDirectory {
 
     val temporaryDirectory: String = getenv("TMPDIR")!!.toKString()
     init {
-        srand(clock().toInt())
+        srand(clock().toUInt())
     }
 
     fun generateTemporaryDirectoryName(prefix: String): String {

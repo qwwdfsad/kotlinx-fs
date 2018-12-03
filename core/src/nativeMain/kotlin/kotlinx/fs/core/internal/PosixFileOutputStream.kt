@@ -21,7 +21,7 @@ class PosixFileOutputStream(private val fd: Int) : OutputStream() {
 
 
         buffer.usePinned {
-            if (platform.posix.write(fd, buffer.refTo(offset), count.toLong()) == -1L) {
+            if (platform.posix.write(fd, buffer.refTo(offset), count.toULong()) == -1L) {
                 throw IOException("Failed to write to file with error code ${errno()}")
             }
         }

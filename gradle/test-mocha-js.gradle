@@ -7,10 +7,10 @@ task installDependenciesMochaNode(type: NpmTask, dependsOn: [npmInstall]) {
             "mocha-teamcity-reporter@$mocha_teamcity_reporter_version"]
 }
 
-task testMochaNode(type: NodeTask, dependsOn: [compileTestKotlin2Js, installDependenciesMochaNode]) {
+task testMochaNode(type: NodeTask, dependsOn: [compileTestKotlinJs, installDependenciesMochaNode]) {
     script = file("$node.nodeModulesDir/node_modules/mocha/bin/mocha")
-    args = [compileTestKotlin2Js.outputFile, '--require', 'source-map-support/register']
+    args = [compileTestKotlinJs.outputFile, '--require', 'source-map-support/register']
     if (project.hasProperty("teamcity")) args += ['--reporter', 'mocha-teamcity-reporter']
 }
 
-test.dependsOn testMochaNode
+jsTest.dependsOn testMochaNode

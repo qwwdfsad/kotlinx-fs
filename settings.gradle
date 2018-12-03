@@ -1,3 +1,6 @@
+enableFeaturePreview('GRADLE_METADATA')
+
 rootProject.name = 'kotlinx-fs'
 
-include 'kotlinx-fs-common', 'kotlinx-fs-jvm', 'kotlinx-fs-js', 'kotlinx-fs-native', 'examples-native'
+include ":core"
+//include ":examples-native"
