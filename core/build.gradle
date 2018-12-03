@@ -2,7 +2,18 @@ apply plugin: 'kotlin-multiplatform'
 
 kotlin {
     targets {
-        fromPreset(presets.macosX64, "native")
+        //fromPreset(presets.iosArm32, 'iosArm32')
+        fromPreset(presets.iosArm64, 'iosArm64')
+        fromPreset(presets.iosX64, 'ios64')
+        fromPreset(presets.macosX64, 'macos64')
+        fromPreset(presets.linuxX64, 'linux64')
+        fromPreset(presets.mingwX64, 'windows64')
+
+        if (System.getProperty('idea.active') == 'true') {
+            //fromPreset(presets.linuxX64, 'native')
+            fromPreset(presets.macosX64, 'native')
+        }
+
         fromPreset(presets.jvm, "jvm") {
             configure([compilations.main, compilations.test]) {
                 tasks.getByName(compileKotlinTaskName).kotlinOptions {
@@ -53,8 +64,21 @@ kotlin {
                 api 'org.jetbrains.kotlin:kotlin-test-js'
             }
         }
+
+        nativeMain { dependsOn commonMain }
+
+        nativeTest { dependsOn nativeMain }
+
+        configure([linux64Main, macos64Main, windows64Main, iosArm32Main, iosArm64Main, ios64Main]) {
+            dependsOn nativeMain
+        }
+
+        configure([linux64Test, macos64Test, windows64Test, iosArm32Test, iosArm64Test, ios64Test]) {
+            dependsOn nativeTest
+        }
     }
 }
 
+apply from: rootProject.file("gradle/publish.gradle")
 apply from: rootProject.file('gradle/node-js.gradle')
 apply from: rootProject.file('gradle/test-mocha-js.gradle')
