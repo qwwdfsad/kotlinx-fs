@@ -30,24 +30,3 @@ task prepareNodePackage(type: Copy) {
 }
 
 npmInstall.dependsOn prepareNodePackage
-
-// Combine all required compilation results in the node_modules folder
-// - main compilation result (compileKotlinJs)
-// - all runtime dependencies of test sourceset
-task jsTestDependencies(type: Sync, group: 'build' , dependsOn: [compileKotlinJs]) {
-    from compileKotlinJs.destinationDir
-    into "$node.nodeModulesDir/node_modules"
-
-    from(files {
-        configurations.jsTestRuntimeClasspath.collect { File file ->
-            file.name.endsWith(".jar") ?
-                    zipTree(file.absolutePath).matching {
-                        include '*.js'
-                        include '*.js.map'
-                    } :
-                    files()
-        }
-    }.builtBy(configurations.jsTestRuntimeClasspath))
-}
-
-npmInstall.dependsOn jsTestDependencies
