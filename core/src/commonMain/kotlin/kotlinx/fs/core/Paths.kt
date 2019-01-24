@@ -3,6 +3,7 @@ package kotlinx.fs.core
 import kotlinx.fs.core.Paths.fs
 import kotlinx.fs.core.Paths.getPath
 import kotlinx.fs.core.attributes.*
+import kotlinx.io.core.*
 
 object Paths {
 
@@ -155,10 +156,10 @@ fun Path.deleteDirectory() {
     this.delete()
 }
 
-fun Path.newInputStream(): InputStream = fs().newInputStream(this)
+fun Path.newInputStream(): Input = fs().newInputStream(this)
 
 fun Path.readAllBytes(): ByteArray = fs().readBytes(this)
 
-fun Path.newOutputStream(): OutputStream = fs().newOutputStream(this)
+fun Path.newOutputStream(): Output = fs().newOutputStream(this)
 
 fun Path.writeBytes(content: ByteArray): Unit = fs().writeBytes(this, content)

@@ -3,7 +3,6 @@ apply plugin: 'kotlin-multiplatform'
 kotlin {
     targets {
         if (System.getProperty('idea.active') == 'true') {
-            //fromPreset(presets.linuxX64, 'native')
             fromPreset(presets.macosX64, 'native')
         } else {
             fromPreset(presets.macosX64, 'macos64')
@@ -28,21 +27,33 @@ kotlin {
         }
     }
 
+    configure(sourceSets) {
+        languageSettings {
+            progressiveMode = true
+            useExperimentalAnnotation("kotlin.Experimental")
+        }
+    }
+
     sourceSets {
         commonMain {
             dependencies {
-                api 'org.jetbrains.kotlin:kotlin-stdlib'
+                api "org.jetbrains.kotlin:kotlin-stdlib"
+                api "org.jetbrains.kotlinx:kotlinx-io:$kotlinx_io_version"
             }
         }
+
         commonTest {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-test-common'
                 api 'org.jetbrains.kotlin:kotlin-test-annotations-common'
             }
         }
+
         jvmMain {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+                api "org.jetbrains.kotlinx:kotlinx-io-jvm:$kotlinx_io_version"
+
             }
         }
         jvmTest {
@@ -50,15 +61,22 @@ kotlin {
                 api 'org.jetbrains.kotlin:kotlin-test-junit'
             }
         }
+
         jsMain {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-js'
+                api "org.jetbrains.kotlinx:kotlinx-io-js:$kotlinx_io_version"
             }
         }
+
         jsTest {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-test-js'
             }
+        }
+
+        nativeMain.dependencies {
+            api "org.jetbrains.kotlinx:kotlinx-io-native:$kotlinx_io_version"
         }
 
         if (System.getProperty('idea.active') != 'true') {

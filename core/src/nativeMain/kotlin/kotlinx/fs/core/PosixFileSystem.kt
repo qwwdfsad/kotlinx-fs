@@ -5,6 +5,7 @@ import kotlinx.fs.core.attributes.*
 import kotlinx.fs.core.internal.*
 import kotlinx.fs.core.internal.Posix.errno
 import kotlinx.fs.core.internal.TemporaryDirectory.generateTemporaryDirectoryName
+import kotlinx.io.core.*
 import platform.posix.*
 import kotlin.reflect.*
 
@@ -127,17 +128,20 @@ object PosixFileSystem : FileSystem() {
     }
 
     private fun copyFile(source: Path, target: Path) {
-        // TODO can be implemented in raw POSIX more efficiently
-        val buffer = ByteArray(512)
+        // TODO it doesn't even work with large files
+        val array = nativeHeap.allocArray<ByteVar>(512)
+        val buffer = IoBuffer(array, 512)
         newOutputStream(target).use { output ->
             newInputStream(source).use { input ->
                 var read: Int
                 do {
-                    read = input.read(buffer)
-                    if (read != -1)  output.write(buffer, 0, read)
+                    read = input.readAvailable(buffer)
+                    if (read != -1)  output.writeFully(buffer, buffer.capacity)
                 } while (read != -1)
             }
         }
+
+        nativeHeap.free(array)
     }
 
     override fun delete(path: Path): Boolean {
@@ -157,22 +161,22 @@ object PosixFileSystem : FileSystem() {
         return error != ENOENT
     }
 
-    override fun newInputStream(path: Path): InputStream {
+    override fun newInputStream(path: Path): Input {
         val fd = open(path.str(), O_RDONLY)
         if (fd == -1) {
             throw IOException("Failed to open ${path.str()} for reading with error code ${errno()}")
         }
 
-        return PosixFileInputStream(fd)
+        return PosixFileInput(fd)
     }
 
-    override fun newOutputStream(path: Path): OutputStream {
+    override fun newOutputStream(path: Path): Output {
         val fd = open(path.str(), O_CREAT or O_WRONLY or O_TRUNC, 0x1B6) // TODO constant
         if (fd == -1) {
             throw IOException("Failed to open ${path.str()} for writing with error code ${errno()}")
         }
 
-        return PosixFileOutputStream(fd)
+        return PosixFileOutput(fd)
     }
 
     // TODO say how unsafe it is without openat

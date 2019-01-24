@@ -1,6 +1,7 @@
 package kotlinx.fs.core
 
 import kotlinx.fs.core.attributes.*
+import kotlinx.io.core.*
 import kotlin.reflect.*
 
 /**
@@ -117,7 +118,7 @@ abstract class FileSystem {
      *
      * @throws IOException if an I/O error occurs or target file doesn't exist
      */
-    abstract fun newInputStream(path: Path): InputStream
+    abstract fun newInputStream(path: Path): Input
 
     /**
      * Opens or creates a file, returning an output stream that may be used to
@@ -125,7 +126,7 @@ abstract class FileSystem {
      *
      * @throws IOException if an I/O error occurs
      */
-    abstract fun newOutputStream(path: Path): OutputStream
+    abstract fun newOutputStream(path: Path): Output
 
     /**
      * Reads all entries in given directory.
@@ -148,17 +149,7 @@ abstract class FileSystem {
      * Reads all file content into single byte array
      * @throws IOException if I/O error occurred during read
      */
-    open fun readBytes(path: Path): ByteArray =
-    // TODO not very efficient
-        newInputStream(path).use {
-            val baos = ByteArrayOutputStream()
-            var byte: Int = it.read()
-            while (byte != -1) {
-                baos.write(byte)
-                byte = it.read()
-            }
-            baos.toByteArray()
-        }
+    open fun readBytes(path: Path): ByteArray = newInputStream(path).use { it.readBytes() }  // TODO not very efficient
 
     /**
      * Writes content to the file, creating one if it doesn't exist.
@@ -167,7 +158,7 @@ abstract class FileSystem {
      */
     open fun writeBytes(path: Path, bytes: ByteArray): Unit =
         newOutputStream(path).use {
-            it.write(bytes)
+            it.writeFully(bytes)
         }
 }
 

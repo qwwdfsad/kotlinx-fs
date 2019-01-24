@@ -2,6 +2,7 @@ package kotlinx.fs.core
 
 import kotlinx.fs.core.attributes.*
 import kotlinx.fs.core.internal.*
+import kotlinx.io.core.*
 import kotlin.reflect.*
 
 actual fun getDefaultFileSystem(): FileSystem = JsFileSystem
@@ -80,28 +81,41 @@ object JsFileSystem : FileSystem() {
         }
     }
 
-    override fun newInputStream(path: Path): InputStream {
+    override fun newInputStream(path: Path): Input {
         // TODO Doesn't work with large files, can be buffered
         try {
             val buffer = fs.readFileSync(path.str())
-            val array = js("Array").prototype.slice.call(buffer, 0).unsafeCast<ByteArray>()
-            return ByteArrayInputStream(array)
+            return buildPacket {
+                writeFully(js("Array").prototype.slice.call(buffer, 0).unsafeCast<ByteArray>())
+            }
         } catch (e: dynamic) {
             throw IOException("Failed to create an input stream for $path: $e")
         }
     }
 
-    override fun newOutputStream(path: Path): OutputStream {
+    override fun newOutputStream(path: Path): Output {
         if (path.isDirectory()) throw IOException("Cannot create output stream for directory")
 
         try {
             // TODO this is really stupid
-            return object : ByteArrayOutputStream() {
-                override fun close() {
-                    val content = toByteArray()
-                    fs.writeFileSync(path.str(), js("Buffer").from(content))
+            return object : AbstractOutput() {
+
+                @Suppress("CANNOT_OVERRIDE_INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+                override fun last(buffer: IoBuffer){
+                    val current = currentTail
+                    currentTail = buffer
+
+                    if (current === IoBuffer.Empty) return
+
+                    val remaining = current.readRemaining
+                    val bytes = ByteArray(remaining)
+                    current.readFully(bytes, 0, remaining)
+                    fs.writeFileSync(path.str(), js("Buffer").from(bytes))
                 }
 
+                override fun flush() {
+                    last(IoBuffer.Empty)
+                }
             }
         } catch (e: dynamic) {
             throw IOException("Failed to create an output stream for $path: $e")

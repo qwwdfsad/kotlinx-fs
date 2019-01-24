@@ -3,6 +3,8 @@ package kotlinx.fs.core
 import kotlinx.fs.core.attributes.*
 import kotlinx.fs.core.attributes.PosixFileAttributes
 import kotlinx.fs.core.attributes.PosixFilePermissions
+import kotlinx.io.core.*
+import kotlinx.io.streams.*
 import java.nio.file.*
 import java.nio.file.attribute.*
 import java.util.concurrent.*
@@ -70,12 +72,12 @@ object JvmFileSystem : FileSystem() {
 
     override fun delete(path: Path): Boolean = Files.deleteIfExists(path)
 
-    override fun newInputStream(path: Path): InputStream = Files.newInputStream(path)
+    override fun newInputStream(path: Path): Input = Files.newInputStream(path).asInput()
 
-    override fun newOutputStream(path: Path): OutputStream = Files.newOutputStream(path)
+    override fun newOutputStream(path: Path): Output = Files.newOutputStream(path).asOutput()
 
     @JvmStatic
-    private val permissionsMapping = mapOf<PosixPermission, PosixFilePermissions>(
+    private val permissionsMapping = mapOf(
         PosixPermission.OWNER_READ to PosixFilePermissions.OWNER_READ,
         PosixPermission.OWNER_WRITE to PosixFilePermissions.OWNER_WRITE,
         PosixPermission.OWNER_EXECUTE to PosixFilePermissions.OWNER_EXECUTE,
