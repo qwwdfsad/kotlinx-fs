@@ -1,6 +1,7 @@
 package kotlinx.fs.core
 
 import kotlinx.fs.core.attributes.*
+import kotlinx.io.errors.*
 import kotlin.test.*
 
 class AttributesTest : TestBase() {

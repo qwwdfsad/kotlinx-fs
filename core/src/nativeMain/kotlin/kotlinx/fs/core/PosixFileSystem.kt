@@ -6,6 +6,7 @@ import kotlinx.fs.core.internal.*
 import kotlinx.fs.core.internal.Posix.errno
 import kotlinx.fs.core.internal.TemporaryDirectory.generateTemporaryDirectoryName
 import kotlinx.io.core.*
+import kotlinx.io.errors.*
 import kotlinx.io.streams.*
 import platform.posix.*
 import kotlin.reflect.*
