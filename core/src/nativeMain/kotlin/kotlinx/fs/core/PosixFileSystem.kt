@@ -6,12 +6,14 @@ import kotlinx.fs.core.internal.*
 import kotlinx.fs.core.internal.Posix.errno
 import kotlinx.fs.core.internal.TemporaryDirectory.generateTemporaryDirectoryName
 import kotlinx.io.core.*
+import kotlinx.io.streams.*
 import platform.posix.*
 import kotlin.reflect.*
 
 
 actual fun getDefaultFileSystem(): FileSystem = PosixFileSystem
 
+@UseExperimental(ExperimentalIoApi::class)
 object PosixFileSystem : FileSystem() {
 
     override fun getPath(first: String, vararg more: String): Path {
@@ -129,19 +131,11 @@ object PosixFileSystem : FileSystem() {
 
     private fun copyFile(source: Path, target: Path) {
         // TODO it doesn't even work with large files
-        val array = nativeHeap.allocArray<ByteVar>(512)
-        val buffer = IoBuffer(array, 512)
         newOutputStream(target).use { output ->
             newInputStream(source).use { input ->
-                var read: Int
-                do {
-                    read = input.readAvailable(buffer)
-                    if (read != -1)  output.writeFully(buffer, buffer.capacity)
-                } while (read != -1)
+                input.copyTo(output)
             }
         }
-
-        nativeHeap.free(array)
     }
 
     override fun delete(path: Path): Boolean {
@@ -167,7 +161,7 @@ object PosixFileSystem : FileSystem() {
             throw IOException("Failed to open ${path.str()} for reading with error code ${errno()}")
         }
 
-        return PosixFileInput(fd)
+        return Input(fd)
     }
 
     override fun newOutputStream(path: Path): Output {
@@ -176,7 +170,7 @@ object PosixFileSystem : FileSystem() {
             throw IOException("Failed to open ${path.str()} for writing with error code ${errno()}")
         }
 
-        return PosixFileOutput(fd)
+        return Output(fd)
     }
 
     // TODO say how unsafe it is without openat

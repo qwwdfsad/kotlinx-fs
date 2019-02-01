@@ -93,28 +93,19 @@ object JsFileSystem : FileSystem() {
         }
     }
 
+    @UseExperimental(ExperimentalIoApi::class)
     override fun newOutputStream(path: Path): Output {
         if (path.isDirectory()) throw IOException("Cannot create output stream for directory")
 
         try {
             // TODO this is really stupid
             return object : AbstractOutput() {
-
-                @Suppress("CANNOT_OVERRIDE_INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
-                override fun last(buffer: IoBuffer){
-                    val current = currentTail
-                    currentTail = buffer
-
-                    if (current === IoBuffer.Empty) return
-
-                    val remaining = current.readRemaining
-                    val bytes = ByteArray(remaining)
-                    current.readFully(bytes, 0, remaining)
-                    fs.writeFileSync(path.str(), js("Buffer").from(bytes))
+                override fun flush(buffer: IoBuffer) {
+                    // TODO we need to append the buffer rather than overwrite
+                    fs.writeFileSync(path.str(), js("Buffer").from(buffer.readBytes()))
                 }
 
-                override fun flush() {
-                    last(IoBuffer.Empty)
+                override fun closeDestination() {
                 }
             }
         } catch (e: dynamic) {
