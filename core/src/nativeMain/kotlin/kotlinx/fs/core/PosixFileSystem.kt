@@ -33,7 +33,11 @@ object PosixFileSystem : FileSystem() {
 
         val stat = nativeHeap.alloc<stat>()
         if (lstat(path.str(), stat.ptr) == -1) {
-            throw IOException("Failed to call 'lstat' on file $path with error code ${errno()}")
+            val errno = errno
+            throw IOException(
+                "Failed to call 'lstat' on file $path with error code $errno",
+                PosixException.forErrno(errno)
+            )
         }
 
         val fileType = stat.st_mode.toInt() and S_IFMT
@@ -82,7 +86,11 @@ object PosixFileSystem : FileSystem() {
     override fun createDirectory(path: Path): Path {
         // 0x1FF hex == 511 == 0777 oct
         if (mkdir(path.str(), 0x1FF) == -1) {
-            throw IOException("Failed to create directory ${path.str()} with error code {${errno()}}")
+            val errno = errno
+            throw IOException(
+                "Failed to create directory ${path.str()} with error code $errno",
+                PosixException.forErrno(errno)
+            )
         }
         return path
     }
@@ -124,7 +132,11 @@ object PosixFileSystem : FileSystem() {
         }
 
         if (rename(source.str(), target.str()) == -1) {
-            throw IOException("Failed to move $source to $target with error code ${errno()}")
+            val errno = errno
+            throw IOException(
+                "Failed to move $source to $target with error code $errno",
+                PosixException.forErrno(errno)
+            )
         }
 
         return target
@@ -150,7 +162,10 @@ object PosixFileSystem : FileSystem() {
         val error = if (hasError) errno() else 0
 
         if (error != 0 && error != ENOENT) {
-            throw IOException("Failed to delete ${path.str()} (isDirectory = $isDirectory) with error code $error")
+            throw IOException(
+                "Failed to delete ${path.str()} (isDirectory = $isDirectory) with error code $error",
+                PosixException.forErrno(error)
+            )
         }
 
         return error != ENOENT
@@ -159,7 +174,11 @@ object PosixFileSystem : FileSystem() {
     override fun newInputStream(path: Path): Input {
         val fd = open(path.str(), O_RDONLY)
         if (fd == -1) {
-            throw IOException("Failed to open ${path.str()} for reading with error code ${errno()}")
+            val errno = errno
+            throw IOException(
+                "Failed to open ${path.str()} for reading with error code $errno",
+                PosixException.forErrno(errno)
+            )
         }
 
         return Input(fd)
@@ -168,7 +187,11 @@ object PosixFileSystem : FileSystem() {
     override fun newOutputStream(path: Path): Output {
         val fd = open(path.str(), O_CREAT or O_WRONLY or O_TRUNC, 0x1B6) // TODO constant
         if (fd == -1) {
-            throw IOException("Failed to open ${path.str()} for writing with error code ${errno()}")
+            val errno = errno
+            throw IOException(
+                "Failed to open ${path.str()} for writing with error code $errno",
+                PosixException.forErrno(errno)
+            )
         }
 
         return Output(fd)
@@ -183,7 +206,7 @@ object PosixFileSystem : FileSystem() {
 
     override fun walkDirectory(path: Path, consumer: (Path) -> Unit) {
         val dirPtr = opendir(path.str())
-                ?: throw IOException("Failed to open directory $path with error code ${errno()}")
+                ?: throw IOException("Failed to open directory $path", PosixException.forErrno())
 
         try {
             var dirStruct = readdir(dirPtr)
@@ -203,7 +226,11 @@ object PosixFileSystem : FileSystem() {
         } finally {
             // TODO we need some supression/cause mechanism here
             if (closedir(dirPtr) == -1) {
-                throw IOException("Failed to close directory $path with error code ${errno()}")
+                val errno = errno
+                throw IOException(
+                    "Failed to close directory $path with error code $errno",
+                    PosixException.forErrno(errno)
+                )
             }
         }
     }

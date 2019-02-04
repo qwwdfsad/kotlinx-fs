@@ -3,6 +3,7 @@ package kotlinx.fs.core
 import kotlinx.fs.core.attributes.*
 import kotlinx.fs.core.internal.*
 import kotlinx.io.core.*
+import kotlinx.io.errors.*
 import kotlin.reflect.*
 
 actual fun getDefaultFileSystem(): FileSystem = JsFileSystem
