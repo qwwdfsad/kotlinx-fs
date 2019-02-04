@@ -3,7 +3,6 @@ package kotlinx.fs.core
 import kotlinx.cinterop.*
 import kotlinx.fs.core.attributes.*
 import kotlinx.fs.core.internal.*
-import kotlinx.fs.core.internal.Posix.errno
 import kotlinx.fs.core.internal.TemporaryDirectory.generateTemporaryDirectoryName
 import kotlinx.io.core.*
 import kotlinx.io.errors.*
@@ -159,7 +158,7 @@ object PosixFileSystem : FileSystem() {
             unlink(path.str()) == -1
         }
 
-        val error = if (hasError) errno() else 0
+        val error = if (hasError) errno else 0
 
         if (error != 0 && error != ENOENT) {
             throw IOException(
