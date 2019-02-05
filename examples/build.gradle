@@ -4,10 +4,28 @@ def ideaActive = System.getProperty('idea.active') == 'true'
 
 kotlin {
     if (ideaActive) {
-        macosX64('native')
+        macosX64('native') {
+            binaries {
+                executable {
+                    entryPoint = 'kotlinx.fs.examples.main'
+                }
+            }
+        }
     } else {
-        macosX64('macos64')
-        linuxX64('linux64')
+        macosX64('macos64') {
+            binaries {
+                executable {
+                    entryPoint = 'kotlinx.fs.examples.main'
+                }
+            }
+        }
+        linuxX64('linux64') {
+            binaries {
+                executable {
+                    entryPoint = 'kotlinx.fs.examples.main'
+                }
+            }
+        }
     }
 
     jvm {
@@ -17,7 +35,6 @@ kotlin {
             }
         }
     }
-
     js {
         compilations.all {
             kotlinOptions {
@@ -40,6 +57,7 @@ kotlin {
             dependencies {
                 api "org.jetbrains.kotlin:kotlin-stdlib"
                 api "org.jetbrains.kotlinx:kotlinx-io:$kotlinx_io_version"
+                api project(":core")
             }
         }
 
@@ -95,7 +113,3 @@ kotlin {
         }
     }
 }
-
-apply from: rootProject.file("gradle/publish.gradle")
-apply from: rootProject.file('gradle/node-js.gradle')
-apply from: rootProject.file('gradle/test-mocha-js.gradle')

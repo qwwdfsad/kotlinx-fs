@@ -1,7 +1,7 @@
 buildscript {
     repositories {
-        mavenCentral()
         mavenLocal()
+        mavenCentral()
         jcenter()
         maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
         maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
@@ -19,16 +19,14 @@ apply plugin: 'kotlin-multiplatform'
 
 allprojects {
     repositories {
-        mavenCentral()
         mavenLocal()
+        mavenCentral()
         jcenter()
         maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
         maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
     }
 
-    afterEvaluate {
-        kotlin.sourceSets.all {
-            it.languageSettings.useExperimentalAnnotation('kotlin.ExperimentalUnsignedTypes')
-        }
+    kotlin.sourceSets.all {
+        it.languageSettings.useExperimentalAnnotation('kotlin.ExperimentalUnsignedTypes')
     }
 }
