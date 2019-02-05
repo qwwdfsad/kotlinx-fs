@@ -4,6 +4,7 @@ import kotlinx.fs.core.Paths.fs
 import kotlinx.fs.core.Paths.getPath
 import kotlinx.fs.core.attributes.*
 import kotlinx.io.core.*
+import kotlinx.io.errors.*
 
 object Paths {
 

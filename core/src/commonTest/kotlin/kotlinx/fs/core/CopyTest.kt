@@ -1,5 +1,6 @@
 package kotlinx.fs.core
 
+import kotlinx.io.errors.*
 import kotlin.test.*
 
 class CopyTest : TestBase() {

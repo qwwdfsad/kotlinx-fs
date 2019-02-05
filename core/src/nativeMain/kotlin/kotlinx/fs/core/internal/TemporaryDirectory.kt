@@ -5,7 +5,7 @@ import platform.posix.*
 
 object TemporaryDirectory {
 
-    val temporaryDirectory: String = getenv("TMPDIR")!!.toKString()
+    val temporaryDirectory: String = getenv("TMPDIR")?.toKString() ?: P_tmpdir ?: "/tmp"
     init {
         srand(clock().toUInt())
     }
